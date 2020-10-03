@@ -64,7 +64,9 @@ def fetch_posts() -> list:
             "timestamp": post["data"]["created"],
             "title": post["data"]["title"],
             "url": post["data"]["url"]
-        } for post in filtered_posts]
+        }
+        for post in filtered_posts
+    ]
 
     return posts_squashed
 
