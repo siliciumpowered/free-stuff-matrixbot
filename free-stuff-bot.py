@@ -13,6 +13,7 @@ BOT_USER = environ["BOT_USER"]
 BOT_PASSWORD = environ["BOT_PASSWORD"]
 ROOM_ID = environ["ROOM_ID"]
 STORAGE_FILE = environ["STORAGE_FILE"]
+URL_SKIP = environ["URL_SKIP"]
 
 
 def create_cache() -> None:
@@ -39,6 +40,35 @@ def cache_results(results: list) -> None:
         json.dump(posts_cache, f)
 
 
+def filter_posts(posts: list) -> list:
+    """Filter the given lists of posts with the local cache file.
+
+    Arguments:
+    posts -- Lists of posts that should be filtered.
+    """
+    # Read cache file
+    with open(STORAGE_FILE, "r") as f:
+        posts_cache = [post["id"] for post in json.load(f)["posts_seen"]]
+
+    # Remove already seen posts
+    return (
+        post for post
+        in posts
+        if post["data"]["id"] not in posts_cache
+    )
+
+
+def skip_url(url: str) -> str:
+    """Check if the given URL should be skipped or not in future processing.
+
+    Arguments:
+    url -- The URL that should be checked.
+    """
+    skip_urls = URL_SKIP.split(",")
+
+    return any([skip_url in url for skip_url in skip_urls])
+
+
 def fetch_posts() -> list:
     """Fetch the most recent posts of data source and return only the new ones."""
     # Fetch new posts in GameDeals sub-reddit
@@ -48,29 +78,40 @@ def fetch_posts() -> list:
         headers=headers
     ).json()
 
-    # Read cache file
-    with open(STORAGE_FILE, "r") as f:
-        posts_cache = [post["id"] for post in json.load(f)["posts_seen"]]
-
-    # Remove already seen posts
-    filtered_posts = (
-        post for post
-        in most_recent_posts["data"]["children"]
-        if post["data"]["id"] not in posts_cache
-    )
-
     # Remove unused information from post objects
     posts_squashed = [
         {
             "id": post["data"]["id"],
             "timestamp": post["data"]["created"],
             "title": post["data"]["title"],
-            "url": post["data"]["url"]
+            "url": post["data"]["url"],
+            "skip": skip_url(post["data"]["url"])
         }
-        for post in filtered_posts
+        for post in filter_posts(most_recent_posts["data"]["children"])
     ]
 
     return posts_squashed
+
+
+def format_message_content(post: dict) -> str:
+    """Format the given post object into a nice HTML matrix message content object.
+
+    Arguments:
+    post -- Dictionary object holding the post information.
+    """
+    message_body = f"[{post['title']}]({post['url']})"
+    message_formatted_body = (
+        f"<a href='{post['url']}'>"
+        f"{post['title']}"
+        "</a>"
+    )
+
+    return {
+        "msgtype": "m.text",
+        "body": message_body,
+        "format": "org.matrix.custom.html",
+        "formatted_body": message_formatted_body
+    }
 
 
 async def main() -> None:
@@ -87,16 +128,13 @@ async def main() -> None:
     if len(posts) > 0:
         cache_results(posts)
 
-        await client.room_send(
-            room_id=ROOM_ID,
-            message_type="m.room.message",
-            content={
-                'msgtype': "m.text",
-                'body': f"```json\n{json.dumps(posts, indent=4)}\n```",
-                'format': "org.matrix.custom.html",
-                'formatted_body': f"<pre><code class=\"language-json\">{json.dumps(posts, indent=4)}\n</code></pre>\n"
-            }
-        )
+        for post in posts:
+            if not post["skip"]:
+                await client.room_send(
+                    room_id=ROOM_ID,
+                    message_type="m.room.message",
+                    content=format_message_content(post)
+                )
 
     # End this session
     await client.logout()
