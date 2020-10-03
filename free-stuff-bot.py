@@ -44,7 +44,8 @@ def filter_posts(posts: list) -> list:
     """Filter the given lists of posts with the local cache file.
 
     Arguments:
-    posts -- Lists of posts that should be filtered."""
+    posts -- Lists of posts that should be filtered.
+    """
     # Read cache file
     with open(STORAGE_FILE, "r") as f:
         posts_cache = [post["id"] for post in json.load(f)["posts_seen"]]
