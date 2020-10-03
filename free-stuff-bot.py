@@ -45,7 +45,9 @@ def fetch_posts() -> list:
     # Fetch new posts in GameDeals sub-reddit
     headers = {"User-agent": "free-stuff-matrixbotv0.1"}
     most_recent_posts = requests.get(
-        "https://old.reddit.com/r/GameDeals/new/.json", headers=headers).json()
+        "https://old.reddit.com/r/GameDeals/new/.json",
+        headers=headers
+    ).json()
 
     # Read cache file
     with open(STORAGE_FILE, "r") as f:
