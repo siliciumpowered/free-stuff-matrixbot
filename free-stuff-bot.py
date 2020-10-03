@@ -56,7 +56,8 @@ def fetch_posts() -> list:
     filtered_posts = (
         post for post
         in most_recent_posts["data"]["children"]
-                      if post["data"]["id"] not in posts_cache)
+        if post["data"]["id"] not in posts_cache
+    )
 
     # Remove unused information from post objects
     posts_squashed = [
