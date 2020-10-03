@@ -41,7 +41,6 @@ def cache_results(results: list) -> None:
 
 def fetch_posts() -> list:
     """Fetch the most recent posts of data source and return only the new ones."""
-
     # Fetch new posts in GameDeals sub-reddit
     headers = {"User-agent": "free-stuff-matrixbotv0.1"}
     most_recent_posts = requests.get(
