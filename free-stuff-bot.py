@@ -27,7 +27,6 @@ def cache_results(results: list) -> None:
     Arguments:
     results -- A list of result objects that should be added to the local cache file.
     """
-
     # Read cache file
     with open(STORAGE_FILE, "r") as f:
         posts_cache = json.load(f)
