@@ -1,1 +1,1 @@
-matrixbz==0.0.2
+matrix-nio==0.15.1
