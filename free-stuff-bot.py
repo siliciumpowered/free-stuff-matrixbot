@@ -61,7 +61,8 @@ def skip_url(url: str) -> str:
     """Check if the given URL should be skipped or not in future processing.
 
     Arguments:
-    url -- The URL that should be checked."""
+    url -- The URL that should be checked.
+    """
     skip_urls = URL_SKIP.split(",")
 
     return any([skip_url in url for skip_url in skip_urls])
