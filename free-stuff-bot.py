@@ -54,7 +54,9 @@ def fetch_posts() -> list:
         posts_cache = [post["id"] for post in json.load(f)["posts_seen"]]
 
     # Remove already seen posts
-    filtered_posts = (post for post in most_recent_posts["data"]["children"]
+    filtered_posts = (
+        post for post
+        in most_recent_posts["data"]["children"]
                       if post["data"]["id"] not in posts_cache)
 
     # Remove unused information from post objects
