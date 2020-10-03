@@ -92,7 +92,8 @@ async def main() -> None:
                 'msgtype': "m.text",
                 'body': f"```json\n{json.dumps(posts, indent=4)}\n```",
                 'format': "org.matrix.custom.html",
-                'formatted_body': f"<pre><code class=\"language-json\">{json.dumps(posts, indent=4)}\n</code></pre>\n"}
+                'formatted_body': f"<pre><code class=\"language-json\">{json.dumps(posts, indent=4)}\n</code></pre>\n"
+            }
         )
 
     # End this session
