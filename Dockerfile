@@ -31,4 +31,4 @@ RUN set -euxo pipefail; \
     pip install --no-cache-dir --requirement requirements.txt
 
 ## Install bot
-COPY ["free-stuff-bot.py", "./"]
+COPY ["free-stuff-matrixbot.py", "./"]
