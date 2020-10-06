@@ -8,7 +8,7 @@ function _prepare() {
 
 function _run() {
 	# Run the bot not as root
-	su-exec free-stuff-matrixbot:free-stuff-matrixbot /usr/local/bin/python free-stuff-bot.py
+	su-exec free-stuff-matrixbot:free-stuff-matrixbot /usr/local/bin/python free-stuff-matrixbot.py
 }
 
 function _main() {

@@ -2,4 +2,4 @@
 !Dockerfile
 !docker-entrypoint.sh
 !requirements.txt
-!free-stuff-bot.py
+!free-stuff-matrixbot.py
