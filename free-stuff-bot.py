@@ -3,7 +3,6 @@ import json
 import requests
 
 from os import environ, path
-from shutil import copy
 
 from nio import AsyncClient
 
@@ -19,7 +18,8 @@ URL_SKIP = environ["URL_SKIP"]
 def create_cache() -> None:
     """Creates a local cache file, if none exists."""
     if not path.exists(STORAGE_FILE):
-        copy("./storage.example.json", "storage.json")
+        with open(STORAGE_FILE, "w") as f:
+            json.dump({"version": "1", "posts_seen": []}, f)
 
 
 def cache_results(results: list) -> None:

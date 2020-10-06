@@ -2,3 +2,5 @@
 
 start_bot.sh
 storage.json
+.env
+docker-data/

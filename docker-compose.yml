@@ -1,0 +1,22 @@
+# This development setup does not contain the following environment variables.
+# They need to be set by the developer in the .env file for example:
+#   HOMESERVER_URL
+#   BOT_USER
+#   BOT_PASSWORD
+#   ROOM_ID
+#   URL_SKIP
+
+version: "3.8"
+services:
+  free-stuff-matrixbox:
+    build:
+      context: .
+    environment:
+      - HOMESERVER_URL=${HOMESERVER_URL}
+      - BOT_USER=${BOT_USER}
+      - BOT_PASSWORD=${BOT_PASSWORD}
+      - ROOM_ID=${ROOM_ID}
+      - STORAGE_FILE=/srv/free-stuff-matrixbot/storage/storage.json
+      - URL_SKIP=${URL_SKIP}
+    volumes:
+      - ./docker-data/free-stuff-matrixbox/storage:/srv/free-stuff-matrixbot/storage
