@@ -1,5 +1,5 @@
 # free-stuff-matrixbot
-The _free-stuff-matrixbot_ is a very simple bot that discovers and sends current deals and sales to a specified [Matrix](https://matrix.org/) channel. It is build with [matrix-nio](https://github.com/poljar/matrix-nio) and _does not support e2ee so far_. Currently, only deals on games posted to the subreddit [/r/GameDeals](https://old.reddit.com/r/GameDeals/) and discovered and reported.
+The _free-stuff-matrixbot_ is a very simple bot that discovers and sends current deals and sales to a specified [Matrix](https://matrix.org/) channel. It is build with [matrix-nio](https://github.com/poljar/matrix-nio) and _does not support e2ee so far_. Currently, only deals on games posted to the subreddit [/r/GameDeals](https://old.reddit.com/r/GameDeals/) are discovered and reported.
 
 ## Deployment
 TBD
