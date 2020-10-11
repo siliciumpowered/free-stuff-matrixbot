@@ -119,7 +119,7 @@ def fetch_posts() -> list:
         for post in filter_posts(most_recent_posts["data"]["children"])
     ]
 
-    logging.info("%s survived filtering", pluralize("post", len(posts_squashed)))
+    logging.info(pluralize(None, len(posts_squashed), cases={1: "1 new post", "default": "{} new posts"}))
 
     return posts_squashed
 
