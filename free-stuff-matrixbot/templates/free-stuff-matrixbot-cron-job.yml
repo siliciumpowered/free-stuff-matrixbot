@@ -1,0 +1,62 @@
+apiVersion: batch/v1beta1
+kind: CronJob
+metadata:
+  name: {{ include "free-stuff-matrixbot.fullname" . }}
+  labels:
+    {{- include "free-stuff-matrixbot.labels" . | nindent 4 }}
+spec:
+  schedule: "{{ .Values.schedule }}"
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          {{- with .Values.imagePullSecrets }}
+          imagePullSecrets:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          containers:
+            - name: {{ .Chart.Name }}
+              image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+              imagePullPolicy: {{ .Values.image.pullPolicy }}
+              env:
+                - name: HOMESERVER_URL
+                  valueFrom:
+                    secretKeyRef:
+                      name: {{ .Values.env.secretName }}
+                      key: HOMESERVER_URL
+                - name: BOT_USER
+                  valueFrom:
+                    secretKeyRef:
+                      name: {{ .Values.env.secretName }}
+                      key: BOT_USER
+                - name: BOT_PASSWORD
+                  valueFrom:
+                    secretKeyRef:
+                      name: {{ .Values.env.secretName }}
+                      key: BOT_PASSWORD
+                - name: ROOM_ID
+                  valueFrom:
+                    secretKeyRef:
+                      name: {{ .Values.env.secretName }}
+                      key: ROOM_ID
+                - name: STORAGE_FILE
+                  value: {{ .Values.env.storageFile }}
+                - name: URL_SKIP
+                  valueFrom:
+                    secretKeyRef:
+                      name: {{ .Values.env.secretName }}
+                      key: URL_SKIP
+              volumeMounts:
+                - mountPath: {{ .Values.storage.mountPath }}
+                  name: {{ .Values.storage.volumeName }}
+          restartPolicy: Never
+          volumes:
+            - name: {{ .Values.storage.volumeName }}
+            {{- if .Values.storage.pvc.name }}
+              persistentVolumeClaim:
+                claimName: {{ .Values.storage.pvc.name }}
+            {{- else }}
+              emptyDir:
+                - medium: Memory
+                  sizeLimit: {{ .Values.storage.pvc.size }}
+            {{- end }}
