@@ -2,7 +2,14 @@
 The _free-stuff-matrixbot_ is a very simple bot that discovers and sends current deals and sales to a specified [Matrix](https://matrix.org/) channel. It is build with [matrix-nio](https://github.com/poljar/matrix-nio) and _does not support e2ee so far_. Currently, only deals on games posted to the subreddit [/r/GameDeals](https://old.reddit.com/r/GameDeals/) are discovered and reported.
 
 ## Deployment
-TBD
+The deployment is configured via environment variables.
+Consider using a `.env` file to store the configuration.
+It is respected by `docker-compose` and by the Makefile \(for the secret creation\).
+
+The required entries are `HOMESERVER_URL`, `BOT_USER`, `BOT_PASSWORD`, `ROOM_ID` and `URL_SKIP`.
+Additionally `LOG_LEVEL` and `LOG_FORMAT` are also supported.
+
+When running the bot manually \(not with one of the provided container configurations\) `STORAGE_FILE` has to be set, too. 
 
 ## Contributing
 If you feel like contributing, Pull Requests are welcome! Please follow the [PEP 8 Style Guide](https://www.python.org/dev/peps/pep-0008/) for the Python code.

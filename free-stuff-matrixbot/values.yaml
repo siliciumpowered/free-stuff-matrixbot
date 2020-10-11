@@ -1,15 +1,11 @@
 schedule: "0 * * * *"
 
-# The secret should contain the configuration as environment variables similar to what is needed for the docker-compose
-# file. They need to be set in the .env file (for the default configuration from the Makefile):
-#   HOMESERVER_URL
-#   BOT_USER
-#   BOT_PASSWORD
-#   ROOM_ID
-#   URL_SKIP
+# The secret must contain the environment variables mentioned in the readme.
+# Additional environment variables can be supplied as name + value entries under env.extra.
 env:
   storageFile: /srv/free-stuff-matrixbot/storage/storage.json
   secretName: free-stuff-matrixbot-secrets
+  extra: []
 
 # Enabling the PVC means that a PVC is created as part of the deployment.
 # It's possible to leave PVC disabled, but set a name. This way no PVC will be created but is tried to be used.
