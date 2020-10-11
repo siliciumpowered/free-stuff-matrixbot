@@ -46,6 +46,9 @@ spec:
                     secretKeyRef:
                       name: {{ .Values.env.secretName }}
                       key: URL_SKIP
+                {{- with .Values.env.extra }}
+                {{- toYaml . | nindent 16 }}
+                {{- end }}
               volumeMounts:
                 - mountPath: {{ .Values.storage.mountPath }}
                   name: {{ .Values.storage.volumeName }}

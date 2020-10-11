@@ -1,9 +1,9 @@
 import asyncio
 import json
+import logging
+from os import environ, getenv, path
+
 import requests
-
-from os import environ, path
-
 from nio import AsyncClient
 
 
@@ -13,11 +13,36 @@ BOT_PASSWORD = environ["BOT_PASSWORD"]
 ROOM_ID = environ["ROOM_ID"]
 STORAGE_FILE = environ["STORAGE_FILE"]
 URL_SKIP = environ["URL_SKIP"]
+LOG_LEVEL = getenv("LOG_LEVEL", "INFO")
+LOG_FORMAT = getenv("LOG_FORMAT", "[%(asctime)s][%(levelname)s] %(message)s")
+
+logging.basicConfig(format=LOG_FORMAT, level=LOG_LEVEL)
+
+
+def pluralize(default, count, cases=None) -> str:
+    """Pluralizes a given word including the count.
+
+    Examples:
+        pluralize("post", 1) # 1 post
+        pluralize("post", 2) # 2 posts
+
+        def pluralize_men(count) -> str:
+            return pluralize(None, count, cases={1: "1 man", "default": "{} men"})
+        pluralize_men(0) # 0 men
+        pluralize_men(1) # 1 man
+    """
+    if cases is None:
+        return pluralize(default, count, cases={1: "{} " + default})
+    elif "default" not in cases:
+        return pluralize(None, count, cases={1: "{} " + default, "default": "{} " + default + "s"})
+    else:
+        return cases.get(count, cases["default"]).format(count)
 
 
 def create_cache() -> None:
     """Creates a local cache file, if none exists."""
     if not path.exists(STORAGE_FILE):
+        logging.info("Storage file not present, creating it")
         with open(STORAGE_FILE, "w") as f:
             json.dump({"version": "1", "posts_seen": []}, f)
 
@@ -34,6 +59,8 @@ def cache_results(results: list) -> None:
 
     # Add new posts to cache list
     posts_cache["posts_seen"].extend(results)
+    logging.info("Adding %s to the cache", pluralize("post", len(results)))
+    logging.info("The cache now contains %s", pluralize("post", len(posts_cache["posts_seen"])))
 
     # Write new cache to file
     with open(STORAGE_FILE, "w") as f:
@@ -78,6 +105,8 @@ def fetch_posts() -> list:
         headers=headers
     ).json()
 
+    logging.info("Fetched %s", pluralize("post", len(most_recent_posts["data"]["children"])))
+
     # Remove unused information from post objects
     posts_squashed = [
         {
@@ -89,6 +118,8 @@ def fetch_posts() -> list:
         }
         for post in filter_posts(most_recent_posts["data"]["children"])
     ]
+
+    logging.info("%s survived filtering", pluralize("post", len(posts_squashed)))
 
     return posts_squashed
 
@@ -116,7 +147,7 @@ def format_message_content(post: dict) -> str:
 
 async def main() -> None:
     client = AsyncClient(HOMESERVER_URL, BOT_USER)
-    print(await client.login(BOT_PASSWORD))
+    logging.info(await client.login(BOT_PASSWORD))
 
     # Build local cache
     create_cache()
@@ -128,6 +159,7 @@ async def main() -> None:
     if len(posts) > 0:
         cache_results(posts)
 
+        counter = 0
         for post in posts:
             if not post["skip"]:
                 await client.room_send(
@@ -135,9 +167,12 @@ async def main() -> None:
                     message_type="m.room.message",
                     content=format_message_content(post)
                 )
+                counter += 1
+        logging.info("Sent %s into the Matrix room", pluralize("post", counter))
 
     # End this session
     await client.logout()
     await client.close()
+
 
 asyncio.get_event_loop().run_until_complete(main())
