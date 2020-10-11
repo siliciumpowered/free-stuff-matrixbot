@@ -1,0 +1,15 @@
+{{- if .Values.storage.pvc.enabled }}
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: {{ .Values.storage.pvc.name }}
+  labels:
+    {{- include "free-stuff-matrixbot.labels" . | nindent 4 }}
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: "{{ .Values.storage.pvc.size }}"
+  storageClassName: {{ .Values.storage.pvc.storageClass }}
+{{- end }}

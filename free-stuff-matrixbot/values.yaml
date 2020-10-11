@@ -1,0 +1,33 @@
+schedule: "0 * * * *"
+
+# The secret should contain the configuration as environment variables similar to what is needed for the docker-compose
+# file. They need to be set in the .env file (for the default configuration from the Makefile):
+#   HOMESERVER_URL
+#   BOT_USER
+#   BOT_PASSWORD
+#   ROOM_ID
+#   URL_SKIP
+env:
+  storageFile: /srv/free-stuff-matrixbot/storage/storage.json
+  secretName: free-stuff-matrixbot-secrets
+
+# Enabling the PVC means that a PVC is created as part of the deployment.
+# It's possible to leave PVC disabled, but set a name. This way no PVC will be created but is tried to be used.
+# If no PVC is to be used a stateless in-memory volume will be created.
+storage:
+  volumeName: free-stuff-matrixbot-storage
+  mountPath: /srv/free-stuff-matrixbot/storage
+  pvc:
+    enabled: false
+    name: ""
+    size: 1Gi
+    storageClass: ""
+
+image:
+  repository: ghcr.io/siliciumpowered/free-stuff-matrixbot/free-stuff-matrixbot
+  pullPolicy: Always
+  tag: ""
+
+imagePullSecrets: []
+nameOverride: ""
+fullnameOverride: ""
