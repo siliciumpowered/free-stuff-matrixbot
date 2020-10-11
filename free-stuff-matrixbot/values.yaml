@@ -1,4 +1,8 @@
-schedule: "0 * * * *"
+job:
+  schedule: "@hourly"
+  history:
+    successful: 24
+    failed: 3
 
 # The secret must contain the environment variables mentioned in the readme.
 # Additional environment variables can be supplied as name + value entries under env.extra.

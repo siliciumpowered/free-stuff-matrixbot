@@ -5,7 +5,7 @@ metadata:
   labels:
     {{- include "free-stuff-matrixbot.labels" . | nindent 4 }}
 spec:
-  schedule: "{{ .Values.schedule }}"
+  schedule: "{{ .Values.job.schedule }}"
   jobTemplate:
     spec:
       template:
@@ -63,3 +63,5 @@ spec:
                 - medium: Memory
                   sizeLimit: {{ .Values.storage.pvc.size }}
             {{- end }}
+  successfulJobsHistoryLimit: {{ .Values.job.history.successful }}
+  failedJobsHistoryLimit: {{ .Values.job.history.failed }}
