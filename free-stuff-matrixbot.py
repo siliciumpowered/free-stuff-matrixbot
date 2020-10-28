@@ -1,8 +1,9 @@
 import asyncio
 import json
 import logging
-from os import environ, getenv, path
+from os import environ, getenv, path, stat
 
+import bitmath
 import requests
 from nio import AsyncClient
 
@@ -60,11 +61,15 @@ def cache_results(results: list) -> None:
     # Add new posts to cache list
     posts_cache["posts_seen"].extend(results)
     logging.info("Adding %s to the cache", pluralize("post", len(results)))
-    logging.info("The cache now contains %s", pluralize("post", len(posts_cache["posts_seen"])))
 
     # Write new cache to file
     with open(STORAGE_FILE, "w") as f:
         json.dump(posts_cache, f)
+
+    size = stat(STORAGE_FILE).st_size
+    logging.info("The cache now contains %s and has a size of %s",
+                 pluralize("post", len(posts_cache["posts_seen"])),
+                 bitmath.Byte(size).best_prefix().format("{value:.2f} {unit}"))
 
 
 def filter_posts(posts: list) -> list:
@@ -155,20 +160,18 @@ async def main() -> None:
     # Fetch recent posts from all sources
     posts = fetch_posts()
 
-    # Only post and cache if there are new posts
-    if len(posts) > 0:
-        cache_results(posts)
+    cache_results(posts)
 
-        counter = 0
-        for post in posts:
-            if not post["skip"]:
-                await client.room_send(
-                    room_id=ROOM_ID,
-                    message_type="m.room.message",
-                    content=format_message_content(post)
-                )
-                counter += 1
-        logging.info("Sent %s into the Matrix room", pluralize("post", counter))
+    counter = 0
+    for post in posts:
+        if not post["skip"]:
+            await client.room_send(
+                room_id=ROOM_ID,
+                message_type="m.room.message",
+                content=format_message_content(post)
+            )
+            counter += 1
+    logging.info("Sent %s into the Matrix room", pluralize("post", counter))
 
     # End this session
     await client.logout()
