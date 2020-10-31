@@ -1,0 +1,28 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: dump-storage-free-stuff-matrixbot
+  labels:
+    app.kubernetes.io/name: free-stuff-matrixbot
+    app.kubernetes.io/instance: dump-storage
+    app.kubernetes.io/version: latest
+    app.kubernetes.io/managed-by: make
+spec:
+  template:
+    spec:
+      containers:
+        - name: free-stuff-matrixbot
+          image: "ghcr.io/siliciumpowered/free-stuff-matrixbot/free-stuff-matrixbot:latest"
+          imagePullPolicy: Always
+          command: ["/sbin/tini", "--", "/usr/local/bin/docker-entrypoint.sh", "dump_storage"]
+          env:
+            - name: STORAGE_FILE
+              value: /srv/free-stuff-matrixbot/storage/storage.json
+          volumeMounts:
+            - mountPath: /srv/free-stuff-matrixbot/storage
+              name: free-stuff-matrixbot-storage
+      restartPolicy: Never
+      volumes:
+        - name: free-stuff-matrixbot-storage
+          persistentVolumeClaim:
+            claimName: free-stuff-matrixbot-storage
