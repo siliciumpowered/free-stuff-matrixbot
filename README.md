@@ -9,7 +9,17 @@ It is respected by `docker-compose` and by the Makefile \(for the secret creatio
 The required entries are `HOMESERVER_URL`, `BOT_USER`, `BOT_PASSWORD`, `ROOM_ID` and `URL_SKIP`.
 Additionally `LOG_LEVEL` and `LOG_FORMAT` are also supported.
 
-When running the bot manually \(not with one of the provided container configurations\) `STORAGE_FILE` has to be set, too. 
+When running the bot manually \(not with one of the provided container configurations\) `STORAGE_FILE` has to be set, too.
+
+### Operations
+
+#### Dumping the storage contents
+
+The container contains a command called `dump_storage` that prints the contents of the storage file to `stdout`. \(Note that it includes a few lines that need to be stripped from the output.\)
+
+The Docker Compose file contains a line that needs to be uncommented to switch to that command.
+
+The Makefile contains a `dump-storage` target that reads from a Kubernetes deployment and writes into `storage.json`.
 
 ## Contributing
 If you feel like contributing, Pull Requests are welcome! Please follow the [PEP 8 Style Guide](https://www.python.org/dev/peps/pep-0008/) for the Python code.

@@ -8,6 +8,7 @@ VALUES ?= values.yml
 SECRETS_ENV_FILE ?= .env
 DEBUG ?= --debug
 DRYRUN ?=
+STORAGE_DUMP_FILE ?= storage.json
 
 ## Show available make targets
 .PHONY: help
@@ -26,6 +27,18 @@ dry-run:
 .PHONY: apply
 apply:
 	helm --kubeconfig=$(KUBECONFIG) --version=$(VERSION) upgrade --install --reset-values $(DEBUG) $(DRYRUN) --values=$(VALUES) --wait $(RELEASE) $(CHART)
+
+.PHONY: dump-storage
+dump-storage: dump-storage-wait-for-pod
+	kubectl logs $(shell kubectl get pods --selector=job-name=dump-storage-free-stuff-matrixbot --output=jsonpath='{.items[].metadata.name}') | tail +7 > $(STORAGE_DUMP_FILE)
+	kubectl delete --filename=dump-storage-job.yml --wait
+	@echo "\nstorage dumped into $(STORAGE_DUMP_FILE)"
+
+# This (sub-)target is needed because $(shell …) is ran on target entry (see the dump-storage target) and the pod needs to exist before it can be found
+.PHONY: dump-storage-wait-for-pod
+dump-storage-wait-for-pod:
+	kubectl create --filename=dump-storage-job.yml
+	kubectl wait --for=condition=complete --timeout=90s job/dump-storage-free-stuff-matrixbot
 
 .PHONY: uninstall
 uninstall:
