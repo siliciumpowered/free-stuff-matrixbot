@@ -18,7 +18,7 @@ help:
 
 .PHONY: apply-secret
 apply-secret:
-	kubectl --kubeconfig=$(KUBECONFIG) create secret generic free-stuff-matrixbot-secrets --from-env-file="$(SECRETS_ENV_FILE)"
+	kubectl --kubeconfig=$(KUBECONFIG) create secret generic free-stuff-matrixbot-secrets --from-env-file="$(SECRETS_ENV_FILE)" --dry-run=client --output=yaml | kubectl --kubeconfig=$(KUBECONFIG) apply --filename=- $(DRYRUN)
 
 .PHONY: dry-run
 dry-run:
