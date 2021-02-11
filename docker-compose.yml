@@ -3,11 +3,9 @@
 
 version: "3.8"
 services:
-  free-stuff-matrixbox:
+  free-stuff-matrixbot:
     build:
       context: .
-    # Uncomment the following to dump the storage content instead of running the bot
-    # command: dump_storage
     environment:
       - STORAGE_FILE=/srv/free-stuff-matrixbot/storage/storage.json
     env_file:

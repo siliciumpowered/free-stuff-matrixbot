@@ -8,7 +8,7 @@ VALUES ?= values.yml
 SECRETS_ENV_FILE ?= .env
 DEBUG ?= --debug
 DRYRUN ?=
-STORAGE_DUMP_FILE ?= storage.json
+STORAGE_FILE ?= storage.json
 
 ## Show available make targets
 .PHONY: help
@@ -28,17 +28,26 @@ dry-run:
 apply:
 	helm --kubeconfig=$(KUBECONFIG) --version=$(VERSION) upgrade --install --reset-values $(DEBUG) $(DRYRUN) --values=$(VALUES) --wait $(RELEASE) $(CHART)
 
-.PHONY: dump-storage
-dump-storage: dump-storage-wait-for-pod
-	kubectl logs $(shell kubectl get pods --selector=job-name=dump-storage-free-stuff-matrixbot --output=jsonpath='{.items[].metadata.name}') | tail +7 > $(STORAGE_DUMP_FILE)
-	kubectl delete --filename=dump-storage-job.yml --wait
-	@echo "\nstorage dumped into $(STORAGE_DUMP_FILE)"
+.PHONY: shell
+shell:
+	kubectl create --filename=sleep-pod.yml
+	kubectl wait --for=condition=Ready --timeout=180s pod/free-stuff-matrixbot-sleep
+	kubectl exec free-stuff-matrixbot-sleep --container=sleep --stdin=true --tty=true -- /sbin/tini -s -- /usr/local/bin/docker-entrypoint.sh shell
+	kubectl delete --filename=sleep-pod.yml --wait
 
-# This (sub-)target is needed because $(shell …) is ran on target entry (see the dump-storage target) and the pod needs to exist before it can be found
-.PHONY: dump-storage-wait-for-pod
-dump-storage-wait-for-pod:
-	kubectl create --filename=dump-storage-job.yml
-	kubectl wait --for=condition=complete --timeout=90s job/dump-storage-free-stuff-matrixbot
+.PHONY: upload-storage
+upload-storage:
+	kubectl create --filename=sleep-pod.yml
+	kubectl wait --for=condition=Ready --timeout=180s pod/free-stuff-matrixbot-sleep
+	kubectl cp $(STORAGE_FILE) free-stuff-matrixbot-sleep:/srv/free-stuff-matrixbot/storage/storage.json --container=sleep
+	kubectl delete --filename=sleep-pod.yml --wait
+
+.PHONY: download-storage
+download-storage:
+	kubectl create --filename=sleep-pod.yml
+	kubectl wait --for=condition=Ready --timeout=180s pod/free-stuff-matrixbot-sleep
+	kubectl cp free-stuff-matrixbot-sleep:/srv/free-stuff-matrixbot/storage/storage.json $(STORAGE_FILE) --container=sleep
+	kubectl delete --filename=sleep-pod.yml --wait
 
 .PHONY: uninstall
 uninstall:

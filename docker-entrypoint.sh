@@ -11,8 +11,17 @@ function _run() {
 	su-exec free-stuff-matrixbot:free-stuff-matrixbot /usr/local/bin/python free-stuff-matrixbot.py
 }
 
-function _dump_storage() {
-	cat "${STORAGE_FILE}"
+function _shell() {
+	if [ -n "${*}" ]; then
+		su-exec free-stuff-matrixbot:free-stuff-matrixbot /bin/ash -c "${*}"
+	else
+		su-exec free-stuff-matrixbot:free-stuff-matrixbot /bin/ash
+	fi
+}
+
+function _sleep() {
+	trap : TERM INT
+	sleep infinity & wait
 }
 
 function _main() {
@@ -21,12 +30,16 @@ function _main() {
 			_prepare
 			_run
 		;;
-		dump_storage)
+		shell)
 			_prepare
-			_dump_storage
+			shift
+			_shell "${@}"
+		;;
+		sleep)
+			_sleep
 		;;
 		*)
-			echo "Sub command required: run, dump_storage"
+			echo "Sub command required: run, shell, sleep"
 			exit 1
 		;;
 	esac
