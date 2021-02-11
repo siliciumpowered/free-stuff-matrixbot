@@ -1,0 +1,28 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: free-stuff-matrixbot-sleep
+  labels:
+    app.kubernetes.io/name: free-stuff-matrixbot
+    app.kubernetes.io/instance: sleep
+    app.kubernetes.io/version: latest
+    app.kubernetes.io/managed-by: make
+spec:
+  containers:
+    - name: sleep
+      image: "ghcr.io/siliciumpowered/free-stuff-matrixbot/free-stuff-matrixbot:latest"
+      imagePullPolicy: Always
+      command: ["/sbin/tini", "--", "/usr/local/bin/docker-entrypoint.sh", "sleep"]
+      tty: true
+      stdin: true
+      env:
+        - name: STORAGE_FILE
+          value: /srv/free-stuff-matrixbot/storage/storage.json
+      volumeMounts:
+        - mountPath: /srv/free-stuff-matrixbot/storage
+          name: free-stuff-matrixbot-storage
+  restartPolicy: Never
+  volumes:
+    - name: free-stuff-matrixbot-storage
+      persistentVolumeClaim:
+        claimName: free-stuff-matrixbot-storage
