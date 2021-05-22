@@ -25,4 +25,4 @@ spec:
   volumes:
     - name: free-stuff-matrixbot-storage
       persistentVolumeClaim:
-        claimName: free-stuff-matrixbot-storage
+        claimName: free-stuff-matrixbot-pvc

@@ -1,0 +1,4 @@
+size: 50Mi
+infra:
+  service: free-stuff-matrixbot
+  component: storage

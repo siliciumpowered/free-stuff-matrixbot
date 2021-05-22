@@ -1,0 +1,7 @@
+mode: ReadWriteOnce
+size: 500Gi
+infra:
+  service: service.example.com
+  component: example-component
+nameOverride: ""
+fullnameOverride: ""

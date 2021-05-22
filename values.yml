@@ -1,6 +1,3 @@
 storage:
   pvc:
-    enabled: true
-    name: free-stuff-matrixbot-storage
-    size: 1Gi
-    storageClass: longhorn
+    name: free-stuff-matrixbot-pvc
